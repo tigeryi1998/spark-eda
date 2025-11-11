@@ -1,0 +1,82 @@
+# docker-compose.yml
+services:
+  # ed-pyspark-jupyter:
+  #   # https://hub.docker.com/r/jupyter/pyspark-notebook/tags?name=spark
+  #   image: jupyter/pyspark-notebook:spark-3.5.0 
+  #   # user: root
+  #   container_name: ed-pyspark-jupyter-lab
+  #   ports:
+  #     - 8888:8888
+  #     - 4040:4040
+  #   environment:
+  #     JUPYTER_PORT: 8888
+  #     SPARK_UI_PORT: 4040
+  #     # JAVA_HOME: /usr/lib/jvm/java-17-openjdk-arm64 # or amd64
+  #     # GRANT_SUDO: yes
+  #     KAFKA_BROKER: kafka:9092
+  #     KAFKA_TOPIC: covid_data
+  #   volumes:
+  #     - kafka_data:/home/jovyan/data:rw
+  #     - ./:/home/jovyan/work:rw
+  #   networks:
+  #     - kafka_default
+
+  pyspark-jupyter:
+    build:
+      context: .
+      dockerfile: Containerfile
+    container_name: pyspark-jupyter
+    command: ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--NotebookApp.token=", "--NotebookApp.password="]
+    ports:
+      - 8888:8888 
+      - 4040:4040 
+    environment:
+      JUPYTER_PORT: 8888
+      SPARK_UI_PORT: 4040
+      KAFKA_BROKER: kafka:9092
+      KAFKA_TOPIC: covid_data
+    volumes:
+      - kafka_data:/home/jovyan/data:rw
+      - ./:/home/jovyan/work:rw
+    networks:
+      - kafka_default  
+
+
+  kafka:
+    image: apache/kafka:4.1.0
+    ports:
+      - 9092:9092
+      - 9093:9093
+    healthcheck:
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/localhost/9092"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - kafka_data:/tmp/kafka-logs
+    environment:
+      # KAFKA settings
+      KAFKA_NODE_ID: 0
+      KAFKA_PROCESS_ROLES: controller,broker
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 0@kafka:9093
+      # Listeners
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      # KAFKA_LISTENERS: PLAINTEXT://172.30.4.125:9092,CONTROLLER://:9093
+      # KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://172.30.4.125:9092
+      # KAFKA_LISTENERS: PLAINTEXT://44.201.154.178:9092,CONTROLLER://:9093
+      # KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://44.201.154.178:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+    networks:
+      - kafka_default  # Ensure this matches the network your Kafka service uses
+
+volumes:
+  kafka_data:
+    driver: local
+  
+networks:
+  kafka_default:
+    name: kafka_default
+    driver: bridge

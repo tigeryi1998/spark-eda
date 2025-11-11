@@ -1,0 +1,8 @@
+# requirements.txt
+matplotlib
+pandas
+numpy
+jupyterlab
+pyspark==3.5.0 
+kafka-python
+requests

@@ -1,16 +1,22 @@
 #!/usr/bin/env python3
+# producer.py
 
 from kafka import KafkaProducer
 from kafka.errors import KafkaError
 import csv
 import os
+import sys
+import json 
 
 KAFKA_BROKER = os.getenv('KAFKA_BROKER', 'kafka:9092')
 KAFKA_TOPIC = os.getenv('KAFKA_TOPIC', 'customer')
 
 # Kafka Producer configuration
-producer = KafkaProducer(bootstrap_servers=[KAFKA_BROKER],
-                         value_serializer=lambda m: str(m).encode('utf-8'))
+producer = KafkaProducer(
+    bootstrap_servers=[KAFKA_BROKER],
+    value_serializer=lambda m: json.dumps(m).encode('utf-8')
+)
+
 
 def produce_events(file_path, flush_interval=10000):
     with open(file_path, mode='r') as file:
@@ -19,7 +25,7 @@ def produce_events(file_path, flush_interval=10000):
         topic = KAFKA_TOPIC
 
         for row in reader:
-            message = str(row)
+            message = row
 
             # Asynchronously send a message
             future = producer.send(topic, value=message)

@@ -34,7 +34,7 @@ services:
       JUPYTER_PORT: 8888
       SPARK_UI_PORT: 4040
       KAFKA_BROKER: kafka:9092
-      KAFKA_TOPIC: covid_data
+      KAFKA_TOPIC: customer
     volumes:
       - kafka_data:/home/jovyan/data:rw
       - ./:/home/jovyan/work:rw

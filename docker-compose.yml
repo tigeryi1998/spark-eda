@@ -35,6 +35,9 @@ services:
       SPARK_UI_PORT: 4040
       KAFKA_BROKER: kafka:9092
       KAFKA_TOPIC: customer
+    depends_on:
+      kafka:
+        condition: service_healthy
     volumes:
       - kafka_data:/home/jovyan/kafka_data:rw
       - ./:/home/jovyan:rw

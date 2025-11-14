@@ -16,8 +16,8 @@ services:
   #     KAFKA_BROKER: kafka:9092
   #     KAFKA_TOPIC: covid_data
   #   volumes:
-  #     - kafka_data:/home/jovyan/data:rw
-  #     - ./:/home/jovyan/work:rw
+  #     - kafka_data:/home/jovyan/kafka_data:rw
+  #     - ./:/home/jovyan:rw
   #   networks:
   #     - kafka_default
 

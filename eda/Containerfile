@@ -14,7 +14,7 @@ ENV JUPYTER_PORT=8888
 ENV SPARK_UI_PORT=4040
 
 ENV KAFKA_BROKER=kafka:9092
-ENV KAFKA_TOPIC=covid_data
+ENV KAFKA_TOPIC=customer
 
 
 # working directory
@@ -24,13 +24,13 @@ WORKDIR /home/jovyan
 
 # install python dependencies
 
-COPY requirements.txt ./work
-RUN pip install --no-cache-dir -r ./work/requirements.txt
+COPY eda/requirements.txt eda/requirements.txt
+RUN pip install --no-cache-dir -r eda/requirements.txt
 
 
 # copy application code
 
-COPY . ./work
+COPY . .
 
 
 # expose ports
@@ -39,6 +39,6 @@ EXPOSE 8888
 EXPOSE 4040
 
 
-# command to run the application
+# command 
 
 CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--NotebookApp.token=", "--NotebookApp.password="]

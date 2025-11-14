@@ -24,7 +24,7 @@ services:
   pyspark-jupyter:
     build:
       context: .
-      dockerfile: Containerfile
+      dockerfile: eda/Containerfile
     container_name: pyspark-jupyter
     command: ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--NotebookApp.token=", "--NotebookApp.password="]
     ports:
@@ -36,10 +36,27 @@ services:
       KAFKA_BROKER: kafka:9092
       KAFKA_TOPIC: customer
     volumes:
-      - kafka_data:/home/jovyan/data:rw
-      - ./:/home/jovyan/work:rw
+      - kafka_data:/home/jovyan/kafka_data:rw
+      - ./:/home/jovyan:rw
     networks:
       - kafka_default  
+
+  kafka-producer:
+    build: 
+      context: .
+      dockerfile: producer/Containerfile
+    container_name: kafka-producer
+    command: ["python", "-u", "producer/producer.py"]
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      KAFKA_BROKER: kafka:9092
+      KAFKA_TOPIC: customer
+    volumes:
+      - ./:/app:rw
+    networks:
+      - kafka_default
 
 
   kafka:

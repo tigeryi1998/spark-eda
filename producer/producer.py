@@ -31,15 +31,16 @@ def produce_events(file_path, flush_interval=10000):
             future = producer.send(topic, value=message)
             count += 1
 
-            # try:
-            #     # Block for 'synchronous' sends
-            #     record_metadata = future.get(timeout=2)
-            #     print(record_metadata.topic)
-            #     print(record_metadata.partition)
-            #     print(record_metadata.offset)
-            # except KafkaError:
-            #     # Decide what to do if produce request failed...
-            #     print('Message delivery failed.')
+            try:
+                # Block for 'synchronous' sends
+                record_metadata = future.get(timeout=1)
+                print(record_metadata.topic)
+                print(record_metadata.partition)
+                print(record_metadata.offset)
+                print()
+            except KafkaError:
+                # Decide what to do if produce request failed...
+                print('Message delivery failed.')
 
             # Flush every N messages
             if count % flush_interval == 0:
@@ -52,5 +53,5 @@ def produce_events(file_path, flush_interval=10000):
 
 
 if __name__ == "__main__":
-    file_path = 'customers-1000000.csv'
+    file_path = '../customers-1000000.csv'
     produce_events(file_path, flush_interval=10000)

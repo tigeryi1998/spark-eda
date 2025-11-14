@@ -3,22 +3,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kafka-producer
+  name: spark-eda-producer
   labels:
-    app: kafka-producer
+    app: spark-eda-producer
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: kafka-producer
+      app: spark-eda-producer
   template:
     metadata:
       labels:
-        app: kafka-producer
+        app: spark-eda-producer
     spec:
       containers:
-        - name: kafka-producer
-          image: image-registry.openshift-image-registry.svc:5000/ds551-2025fall-cb9303/kafka-producer:latest
+        - name: spark-eda-producer
+          image: image-registry.openshift-image-registry.svc:5000/ds551-2025fall-cb9303/spark-eda-producer:latest
           imagePullPolicy: Always
           env:
             - name: KAFKA_BROKER

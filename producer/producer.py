@@ -53,5 +53,5 @@ def produce_events(file_path, flush_interval=10000):
 
 
 if __name__ == "__main__":
-    file_path = '../customers-1000000.csv'
+    file_path = 'customers-1000000.csv'
     produce_events(file_path, flush_interval=10000)

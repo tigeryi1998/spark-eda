@@ -25,7 +25,7 @@ services:
     build:
       context: .
       dockerfile: eda/Containerfile
-    container_name: pyspark-jupyter
+    container_name: kafka-eda-jupyter
     command: ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--NotebookApp.token=", "--NotebookApp.password="]
     ports:
       - 8888:8888 
@@ -48,7 +48,7 @@ services:
     build: 
       context: .
       dockerfile: producer/Containerfile
-    container_name: kafka-producer
+    container_name: kafka-eda-producer
     command: ["python", "-u", "producer/producer.py"]
     depends_on:
       kafka:
@@ -64,6 +64,7 @@ services:
 
   kafka:
     image: apache/kafka:4.1.0
+    container_name: kafka
     ports:
       - 9092:9092
       - 9093:9093

@@ -14,7 +14,7 @@ services:
   #     # JAVA_HOME: /usr/lib/jvm/java-17-openjdk-arm64 # or amd64
   #     # GRANT_SUDO: yes
   #     KAFKA_BROKER: kafka:9092
-  #     KAFKA_TOPIC: covid_data
+  #     KAFKA_TOPIC: customer
   #   volumes:
   #     - kafka_data:/home/jovyan/kafka_data:rw
   #     - ./:/home/jovyan:rw

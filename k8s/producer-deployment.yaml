@@ -24,7 +24,7 @@ spec:
             - name: KAFKA_BROKER
               value: kafka:9092
             - name: KAFKA_TOPIC
-              value: covid_data
+              value: customer
           resources:
             requests:
               cpu: "200m"

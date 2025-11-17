@@ -1,11 +1,11 @@
-# buildconfig-producer.yaml
+# buildconfig-notebook.yaml
 
 apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
-  name: spark-eda-producer
+  name: spark-eda-notebook
   labels:
-    app: spark-eda-producer
+    app: spark-eda-notebook
 spec:
   lookupPolicy:
     local: false
@@ -15,14 +15,14 @@ spec:
 apiVersion: build.openshift.io/v1
 kind: BuildConfig
 metadata:
-  name: spark-eda-producer
+  name: spark-eda-notebook
   labels:
-    app: spark-eda-producer
+    app: spark-eda-notebook
 spec:
   output:
     to:
       kind: ImageStreamTag
-      name: spark-eda-producer:latest
+      name: spark-eda-notebook:latest
   source:
     type: Git
     git:
@@ -33,9 +33,8 @@ spec:
   strategy:
     type: Docker
     dockerStrategy:
-      dockerfilePath: producer/Containerfile
+      dockerfilePath: eda/Containerfile
   triggers:
     - type: ConfigChange
-  runPolicy: Serial
   successfulBuildsHistoryLimit: 5
   failedBuildsHistoryLimit: 5

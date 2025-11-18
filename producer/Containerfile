@@ -7,4 +7,10 @@ RUN pip install --no-cache-dir -r producer/requirements.txt
 
 COPY . .
 
+# environment variables
+
+ENV KAFKA_BROKER=kafka:9092
+ENV KAFKA_TOPIC=customer
+ENV CSV_FILE=customers-100000.csv
+
 CMD ["python", "-u", "producer/producer.py"]

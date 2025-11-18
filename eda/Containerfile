@@ -5,6 +5,8 @@
 
 FROM jupyter/pyspark-notebook:spark-3.5.0 
 
+USER root
+
 
 # environment variables
 
@@ -37,7 +39,6 @@ COPY . .
 #   Fix permissions so OpenShift random UID can write
 # ------------------------------------------------------
 
-USER root
 
 # Make the entire /home/jovyan directory group-owned by GID 0 and writable by the group. 
 # This is REQUIRED for Jupyter runtime

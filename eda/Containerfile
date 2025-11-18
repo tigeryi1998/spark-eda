@@ -39,20 +39,14 @@ COPY . .
 
 USER root
 
-# Make the entire /home/jovyan directory group-owned by GID 0
-# and writable by the group. This is REQUIRED for Jupyter runtime
-# directories (/home/jovyan/.local/share/jupyter/runtime)
-# to be created without permission errors.\
+# Make the entire /home/jovyan directory group-owned by GID 0 and writable by the group. 
+# This is REQUIRED for Jupyter runtime
+# directories (/home/jovyan/.local/share/jupyter/runtime) to be created without permission errors.
+# Make /home/jovyan fully group-writable for OpenShift random UID
 
 RUN chgrp -R 0 /home/jovyan && chmod -R g+w /home/jovyan
 
 RUN chgrp -R 0 /tmp && chmod -R g+w /tmp
-
-
-# Fix permissions so the jovyan user owns the folder
-
-RUN chown -R jovyan:users /home/jovyan
-
 
 # Return to the non-root Jupyter user
 

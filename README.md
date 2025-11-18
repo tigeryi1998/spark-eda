@@ -72,7 +72,7 @@ oc apply -f k8s/buildconfig-notebook.yaml
 Start builds: (Optional) it will automatically build from Git
 
 ``` bash
-oc start-build kafka-producer --follow
+oc start-build spark-eda-producer --follow
 oc start-build spark-eda-notebook --follow
 ```
 

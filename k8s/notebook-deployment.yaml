@@ -30,7 +30,6 @@ spec:
             - "--allow-root"
             - "--NotebookApp.token="
             - "--NotebookApp.password="
-          
           # ---------------------------------
           ports:
             - name: jupyter

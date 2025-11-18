@@ -23,6 +23,7 @@ WORKDIR /home/jovyan
 # install python dependencies
 
 COPY eda/requirements.txt eda/requirements.txt
+
 RUN pip install --no-cache-dir -r eda/requirements.txt
 
 
@@ -41,11 +42,20 @@ USER root
 # Make the entire /home/jovyan directory group-owned by GID 0
 # and writable by the group. This is REQUIRED for Jupyter runtime
 # directories (/home/jovyan/.local/share/jupyter/runtime)
-# to be created without permission errors.
-RUN chgrp -R 0 /home/jovyan && \
-    chmod -R g+w /home/jovyan
+# to be created without permission errors.\
+
+RUN chgrp -R 0 /home/jovyan && chmod -R g+w /home/jovyan
+
+RUN chgrp -R 0 /tmp && chmod -R g+w /tmp
+
+
+# Fix permissions so the jovyan user owns the folder
+
+RUN chown -R jovyan:users /home/jovyan
+
 
 # Return to the non-root Jupyter user
+
 USER jovyan
 
 # ------------------------------------------------------
@@ -54,9 +64,10 @@ USER jovyan
 # expose ports
 
 EXPOSE 8888
+
 EXPOSE 4040
 
 
 # command 
 
-CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--ServerApp.token=", "--ServerApp.password="]
+CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--NotebookApp.token=", "--NotebookApp.password="]

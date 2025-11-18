@@ -28,8 +28,8 @@ spec:
             - "--port=8888"
             - "--no-browser"
             - "--allow-root"
-            - "--ServerApp.token="
-            - "--ServerApp.password="
+            - "--NotebookApp.token="
+            - "--NotebookApp.password="
           
           # ---------------------------------
           ports:
@@ -44,10 +44,6 @@ spec:
             - name: KAFKA_TOPIC
               value: customer
 
-          volumeMounts:
-            - name: notebook-volume
-              mountPath: /home/jovyan/work
-
           resources:
             requests:
               cpu: "200m"
@@ -56,25 +52,21 @@ spec:
               cpu: "1"
               memory: "2Gi"
 
-          readinessProbe:
-            httpGet:
-              path: "/"
-              port: 8888
-            initialDelaySeconds: 15
-            periodSeconds: 5
-            timeoutSeconds: 2
+          # readinessProbe:
+          #   httpGet:
+          #     path: "/"
+          #     port: 8888
+          #   initialDelaySeconds: 15
+          #   periodSeconds: 5
+          #   timeoutSeconds: 2
 
-          livenessProbe:
-            httpGet:
-              path: "/"
-              port: 8888
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            timeoutSeconds: 2
-
-      volumes:
-        - name: notebook-volume
-          emptyDir: {}
+          # livenessProbe:
+          #   httpGet:
+          #     path: "/"
+          #     port: 8888
+          #   initialDelaySeconds: 30
+          #   periodSeconds: 10
+          #   timeoutSeconds: 2
 
       restartPolicy: Always
       terminationGracePeriodSeconds: 30

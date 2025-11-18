@@ -135,7 +135,7 @@ podman-compose down -v
 
 ## 📊 Notebooks
 
--   **csv-eda.ipynb**\
+-   **csv-eda.ipynb**
 -   **kafka-eda.ipynb**
 
 ## 🔮 Future Work

@@ -7,6 +7,7 @@ import csv
 import os
 import sys
 import json 
+import time
 
 KAFKA_BROKER = os.getenv('KAFKA_BROKER', 'kafka:9092')
 KAFKA_TOPIC = os.getenv('KAFKA_TOPIC', 'customer')
@@ -47,6 +48,7 @@ def produce_events(file, flush_interval=10000):
             if count % flush_interval == 0:
                 producer.flush()
                 print(f"Flushed {count} messages")
+                print()
 
     # Final flush to ensure everything is sent
     producer.flush()
@@ -54,5 +56,10 @@ def produce_events(file, flush_interval=10000):
 
 
 if __name__ == "__main__":
-    file = CSV_FILE
-    produce_events(file, flush_interval=100)
+    # ---- Run producer once ----
+    produce_events(CSV_FILE, flush_interval=100)
+
+    # ---- Keep container alive so Deployment doesn't CrashLoop ----
+    print("Producer finished. Keeping container alive...")
+    while True:
+        time.sleep(3600)

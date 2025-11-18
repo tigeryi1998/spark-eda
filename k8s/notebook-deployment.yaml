@@ -20,16 +20,62 @@ spec:
         - name: spark-eda-notebook
           image: image-registry.openshift-image-registry.svc:5000/ds551-2025fall-cb9303/spark-eda-notebook:latest
           imagePullPolicy: Always
+
+          # ---- OpenShift Commands ----
+          command: ["jupyter", "lab"]
+          args:
+            - "--ip=0.0.0.0"
+            - "--port=8888"
+            - "--no-browser"
+            - "--allow-root"
+            - "--ServerApp.token="
+            - "--ServerApp.password="
+          
+          # ---------------------------------
+          ports:
+            - name: jupyter
+              containerPort: 8888
+            - name: spark-ui
+              containerPort: 4040
+
           env:
             - name: KAFKA_BROKER
               value: kafka:9092
             - name: KAFKA_TOPIC
               value: customer
+
+          volumeMounts:
+            - name: notebook-volume
+              mountPath: /home/jovyan/work
+
           resources:
             requests:
               cpu: "200m"
               memory: "512Mi"
             limits:
-              cpu: "500m"
-              memory: "1Gi"
+              cpu: "1"
+              memory: "2Gi"
+
+          readinessProbe:
+            httpGet:
+              path: "/"
+              port: 8888
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            timeoutSeconds: 2
+
+          livenessProbe:
+            httpGet:
+              path: "/"
+              port: 8888
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 2
+
+      volumes:
+        - name: notebook-volume
+          emptyDir: {}
+
       restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+

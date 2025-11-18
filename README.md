@@ -1,115 +1,147 @@
-# Spark + Kafka EDA Project
+# Spark + Kafka EDA Project (OpenShift Deployment)
 
-This project demonstrates a full workflow for streaming CSV data into Kafka using a Python producer, consuming and analyzing the data using PySpark in Jupyter notebooks, and running services locally using **Podman Compose**. Kubernetes manifests are included but not fully wired yet.
+This project demonstrates a complete streaming workflow:
 
----
+-   A **Python Kafka Producer** streams rows from a large CSV file.
+-   A **Kafka broker** stores the stream.
+-   A **PySpark Notebook** running on OpenShift consumes Kafka messages
+    for EDA.
+-   The whole pipeline can run **locally with Podman Compose** or
+    **fully on OpenShift** using Kubernetes YAML and BuildConfigs.
 
 ## 📁 Project Structure
 
-```text
+``` text
 spark-eda/
-├── customers-1000000.csv       # Large CSV dataset used by the producer
-├── docker-compose.yml          # Podman/Docker Compose services (Kafka, Producer, EDA)
-├── README.md                   # Project documentation
-├── producer/                   # Kafka Producer container
+├── customers-1000000.csv (NOT on Github)            
+├── docker-compose.yml               
+├── README.md                        
+│
+├── producer/                        
 │   ├── Containerfile
 │   ├── producer.py
 │   └── requirements.txt
-├── eda/                        # Spark / Jupyter analysis container
+│
+├── eda/                             
 │   ├── Containerfile
-│   ├── csv-eda.ipynb           # Local CSV EDA
-│   ├── kafka-eda.ipynb         # Kafka → Spark decoding + analysis
+│   ├── csv-eda.ipynb
+│   ├── kafka-eda.ipynb
 │   └── requirements.txt
-└── k8s/                        # Kubernetes YAML files (WIP)
+│
+└── k8s/                             
     ├── buildconfig-producer.yaml
+    ├── buildconfig-notebook.yaml
     ├── kafka-deployment.yaml
-    ├── kafka-data-persistentvolumeclaim.yaml
     ├── kafka-service.yaml
-    └── producer-deployment.yaml
+    ├── kafka-data-persistentvolumeclaim.yaml
+    ├── producer-deployment.yaml
+    ├── notebook-deployment.yaml
+    ├── notebook-service.yaml
 ```
 
----
+## 🚀 Deploying on OpenShift
 
-## 🚀 Running Services with Podman Compose
+### 1. Login
 
-### **1. Build and start all containers**
-```bash
-podman-compose up --build -d
+``` bash
+oc login --token=<TOKEN> --server=<cluster-api-url>
+
+oc login --token=<TOKEN> --server=https://api.edu.nerc.mghpcc.org:6443
 ```
-This starts:
-- **Kafka broker**
-- **Producer container** (streams CSV → Kafka)
-- **EDA container** (Jupyter environment)
 
----
+### 2. Check project
 
-## 🧪 Testing the Kafka Producer
+``` bash
+# create a project (NOT allowed on NERC)
+# oc new-project spark-eda
 
-The producer reads:
+oc project
+# Using project "ds551-2025fall-cb9303" on server "https://api.edu.nerc.mghpcc.org:6443".
 ```
-/app/customers-1000000.csv
+
+## 🏗️ Step 1 --- Build Images for Kakfa Producer and EDA Notebook
+
+``` bash
+oc apply -f k8s/buildconfig-producer.yaml
+oc apply -f k8s/buildconfig-notebook.yaml
 ```
-And sends rows to Kafka topic `customer`.
+
+Start builds: (Optional) it will automatically build from Git
+
+``` bash
+oc start-build kafka-producer --follow
+oc start-build spark-eda-notebook --follow
+```
+
+## 🧱 Step 2 --- Deploy Kafka (KRaft mode)
+
+``` bash
+oc apply -f k8s/kafka-data-persistentvolumeclaim.yaml
+oc apply -f k8s/kafka-deployment.yaml
+oc apply -f k8s/kafka-service.yaml
+```
+
+## 🚚 Step 3 --- Deploy Kafka Producer
+
+``` bash
+oc apply -f k8s/producer-deployment.yaml
+```
+
+Logs:
+
+``` bash
+oc get pod
+oc get deployment
+oc logs -f deployment/kafka-producer
+```
+
+## 📓 Step 4 --- Deploy Notebook
+
+``` bash
+oc apply -f k8s/notebook-deployment.yaml
+oc apply -f k8s/notebook-service.yaml
+```
+
+Get route:
+
+``` bash
+oc get route spark-eda-notebook
+# https://jupyter-ds551-2025fall-cb9303.apps.edu.nerc.mghpcc.org
+```
+
+You can also use the Openshift UI to find the URL link launch the Jupyter Notebook
+
+
+
+## 🖥️ Local Option: Podman Compose
+
+``` bash
+podman-compose build
+podman-compose up -d
+```
 
 Check producer logs:
-```bash
+
+``` bash
 podman logs -f spark-eda-producer-1
 ```
 
----
-
-## 📊 Running EDA in Jupyter Notebook
-
-The **eda** container exposes JupyterLab.
-
-Find the container:
-```bash
-podman ps
+Shutdown
+``` bash
+podman-compose down -v 
 ```
-Then inspect Jupyter token:
-```bash
-podman logs <eda-container-name>
-```
-Open the printed Jupyter URL in your browser.
 
-### Notebooks:
-- **csv-eda.ipynb** → EDA directly on CSV
-- **kafka-eda.ipynb** →
-  - Consume Kafka
-  - Decode JSON strings using PySpark UDF
-  - Extract columns
-  - Run analytics
+## 📊 Notebooks
 
----
+-   **csv-eda.ipynb**\
+-   **kafka-eda.ipynb**
 
-## 🧱 Kubernetes (WIP)
-YAMLs for Kafka and the producer exist in the `k8s/` folder but are not linked to EDA yet. Future improvements may include:
-- Deploying Kafka + Producer in OpenShift
-- Adding a Spark deployment
-- Using BuildConfig to build images
+## 🔮 Future Work
 
----
-
-## 📝 Notes
-- The project uses **Podman** instead of Docker, but `docker-compose.yml` works with Podman directly.
-- Two separate containers are used for Producer and EDA.
-- CSV path is mounted into containers via volume.
-- Kafka producer runs asynchronously and flushes periodically.
-
----
-
-## 🔮 Future Enhancements
-- Kubernetes consumer/EDA deployment
-- Add Spark Structured Streaming notebook
-- Add schema registry
-- Add Airflow or Kafka Connect pipeline
-
----
-
-## 🤝 Contributing
-Feel free to open issues or extend the notebooks.
-
----
+-   Structured Streaming on OpenShift
+-   Schema Registry
+-   Airflow or Kafka Connect integration
 
 ## 📜 License
-Apache 
+
+Apache 2.0

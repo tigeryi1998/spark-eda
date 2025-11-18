@@ -8,7 +8,7 @@ metadata:
     app: spark-eda-producer
 spec:
   lookupPolicy:
-    local: false
+    local: true
   tags:
     - name: latest
 ---

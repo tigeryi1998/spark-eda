@@ -8,7 +8,7 @@ metadata:
     app: spark-eda-notebook
 spec:
   lookupPolicy:
-    local: false
+    local: true
   tags:
     - name: latest
 ---

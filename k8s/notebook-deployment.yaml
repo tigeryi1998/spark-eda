@@ -1,0 +1,35 @@
+# notebook-deployment.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-eda-notebook
+  labels:
+    app: spark-eda-notebook
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spark-eda-notebook
+  template:
+    metadata:
+      labels:
+        app: spark-eda-notebook
+    spec:
+      containers:
+        - name: spark-eda-notebook
+          image: image-registry.openshift-image-registry.svc:5000/ds551-2025fall-cb9303/spark-eda-notebook:latest
+          imagePullPolicy: Always
+          env:
+            - name: KAFKA_BROKER
+              value: kafka:9092
+            - name: KAFKA_TOPIC
+              value: customer
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
+      restartPolicy: Always

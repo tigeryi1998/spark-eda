@@ -1,0 +1,57 @@
+# notebook-service.yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: spark-eda-notebook
+  labels:
+    app: spark-eda-notebook
+spec:
+  ports:
+    - name: jupyter
+      port: 8888
+      targetPort: 8888
+      protocol: TCP
+    - name: spark-ui
+      port: 4040
+      targetPort: 4040
+      protocol: TCP
+  selector:
+    app: spark-eda-notebook
+  type: ClusterIP
+
+--- 
+
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: jupyter
+  labels:
+    app: spark-eda-notebook
+spec:
+  to:
+    kind: Service
+    name: spark-eda-notebook
+  port:
+    targetPort: jupyter
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+
+---
+
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: spark-ui
+  labels:
+    app: spark-eda-notebook
+spec:
+  to:
+    kind: Service
+    name: spark-eda-notebook
+  port:
+    targetPort: spark-ui
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

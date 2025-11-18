@@ -9,6 +9,8 @@ This project demonstrates a complete streaming workflow:
 -   The whole pipeline can run **locally with Podman Compose** or
     **fully on OpenShift** using Kubernetes YAML and BuildConfigs.
 
+[Github URL](https://github.com/tigeryi1998/spark-eda)
+
 ## 📁 Project Structure
 
 ``` text

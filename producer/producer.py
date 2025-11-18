@@ -10,6 +10,7 @@ import json
 
 KAFKA_BROKER = os.getenv('KAFKA_BROKER', 'kafka:9092')
 KAFKA_TOPIC = os.getenv('KAFKA_TOPIC', 'customer')
+CSV_FILE = os.getenv('CSV_FILE', 'customers-1000000.csv')
 
 # Kafka Producer configuration
 producer = KafkaProducer(
@@ -18,8 +19,8 @@ producer = KafkaProducer(
 )
 
 
-def produce_events(file_path, flush_interval=10000):
-    with open(file_path, mode='r') as file:
+def produce_events(file, flush_interval=10000):
+    with open(file, mode='r') as file:
         reader = csv.DictReader(file)
         count = 0
         topic = KAFKA_TOPIC
@@ -53,5 +54,5 @@ def produce_events(file_path, flush_interval=10000):
 
 
 if __name__ == "__main__":
-    file_path = 'customers-1000000.csv'
-    produce_events(file_path, flush_interval=10000)
+    file = CSV_FILE
+    produce_events(file, flush_interval=10000)

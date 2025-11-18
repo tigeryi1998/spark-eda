@@ -1,68 +1,41 @@
 # Base image (includes Python, Java, Spark, Jupyter)
-# Using the Spark version 3.5.0  
-# Using Scala version 2.12.18, OpenJDK 64-Bit Server VM, 17.0.8.1
-# https://hub.docker.com/r/jupyter/pyspark-notebook/tags?name=spark 
-
 FROM jupyter/pyspark-notebook:spark-3.5.0 
 
+# ------------------------------------------------------
+# Run as root to install packages and fix permissions
+# ------------------------------------------------------
 USER root
 
-
 # environment variables
-
 ENV JUPYTER_PORT=8888
 ENV SPARK_UI_PORT=4040
-
 ENV KAFKA_BROKER=kafka:9092
 ENV KAFKA_TOPIC=customer
 
-
 # working directory
-
 WORKDIR /home/jovyan
 
-
 # install python dependencies
-
 COPY eda/requirements.txt eda/requirements.txt
-
 RUN pip install --no-cache-dir -r eda/requirements.txt
 
-
-# copy application code
-
+# copy all application code
 COPY . .
 
+# ------------------------------------------------------
+# Fix permissions for OpenShift
+# ------------------------------------------------------
+# Make /home/jovyan fully writable for any UID (needed for PySpark/Java)
+RUN chmod -R 777 /home/jovyan
+RUN chmod -R 777 /tmp
+
+# Switch back to default notebook user (OpenShift may override UID)
+USER ${NB_UID}
 
 # ------------------------------------------------------
-# 🔥 REQUIRED FOR OPENSHIFT (added, safe, minimal)
-#   Fix permissions so OpenShift random UID can write
-# ------------------------------------------------------
-
-
-# Make the entire /home/jovyan directory group-owned by GID 0 and writable by the group. 
-# This is REQUIRED for Jupyter runtime
-# directories (/home/jovyan/.local/share/jupyter/runtime) to be created without permission errors.
-# Make /home/jovyan fully group-writable for OpenShift random UID
-
-RUN chgrp -R 0 /home/jovyan && chmod -R g+w /home/jovyan
-
-RUN chgrp -R 0 /tmp && chmod -R g+w /tmp
-
-# Return to the non-root Jupyter user
-
-USER jovyan
-
-# ------------------------------------------------------
-
-
 # expose ports
-
 EXPOSE 8888
-
 EXPOSE 4040
 
-
-# command to run notebook 
-
+# command to run notebook
 CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--NotebookApp.token=", "--NotebookApp.password="]

@@ -210,7 +210,7 @@ __marimo__/
 .ipynb_checkpoints/
 
 # big files
-*.csv
+# *.csv
 *.tsv
 *.parquet
 *.tz 
@@ -246,3 +246,6 @@ __marimo__/
 
 # kafka data volume
 kafka_data/
+
+# 1M csv
+customers-1000000.csv

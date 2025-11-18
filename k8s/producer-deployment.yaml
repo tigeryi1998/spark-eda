@@ -26,7 +26,7 @@ spec:
             - name: KAFKA_TOPIC
               value: customer
             - name: CSV_FILE
-              value: customers-100000.csv
+              value: customers-1000.csv
           resources:
             requests:
               cpu: "200m"

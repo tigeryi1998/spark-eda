@@ -11,6 +11,6 @@ COPY . .
 
 ENV KAFKA_BROKER=kafka:9092
 ENV KAFKA_TOPIC=customer
-ENV CSV_FILE=customers-100000.csv
+ENV CSV_FILE=customers-1000.csv
 
 CMD ["python", "-u", "producer/producer.py"]

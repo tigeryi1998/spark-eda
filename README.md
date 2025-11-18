@@ -15,7 +15,8 @@ This project demonstrates a complete streaming workflow:
 
 ``` text
 spark-eda/
-├── customers-1000000.csv (NOT on Github)            
+├── customers-1000000.csv (NOT on Github)          
+├── customers-1000.csv (On Github)     
 ├── docker-compose.yml               
 ├── README.md                        
 │

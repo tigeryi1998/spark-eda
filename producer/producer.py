@@ -10,7 +10,7 @@ import json
 
 KAFKA_BROKER = os.getenv('KAFKA_BROKER', 'kafka:9092')
 KAFKA_TOPIC = os.getenv('KAFKA_TOPIC', 'customer')
-CSV_FILE = os.getenv('CSV_FILE', 'customers-1000000.csv')
+CSV_FILE = os.getenv('CSV_FILE', 'customers-1000.csv')
 
 # Kafka Producer configuration
 producer = KafkaProducer(
@@ -55,4 +55,4 @@ def produce_events(file, flush_interval=10000):
 
 if __name__ == "__main__":
     file = CSV_FILE
-    produce_events(file, flush_interval=10000)
+    produce_events(file, flush_interval=100)

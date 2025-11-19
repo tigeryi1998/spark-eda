@@ -61,7 +61,9 @@ spec:
           volumeMounts:
             - name: spark-temp
               mountPath: /tmp/spark
-
+            - name: ivy-cache
+              mountPath: /tmp/.ivy2
+            
           resources:
             requests:
               cpu: "500m"
@@ -88,6 +90,8 @@ spec:
 
       volumes:
         - name: spark-temp
+          emptyDir: {}
+        - name: ivy-cache
           emptyDir: {}
 
       restartPolicy: Always

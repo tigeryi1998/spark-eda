@@ -1,59 +1,31 @@
-# -----------------------------
-# Base image
-# -----------------------------
 FROM jupyter/pyspark-notebook:spark-3.5.0
 
-# -----------------------------
 # Become root for setup
-# -----------------------------
 USER root
 
-# Create important dirs and give OpenShift-safe permissions
+# Create important writable dirs for OpenShift
 RUN mkdir -p /home/jovyan/.ivy2 \
-    && mkdir -p /home/jovyan/.sparkStaging \
-    && mkdir -p /home/jovyan/.local/share/jupyter/runtime \
     && mkdir -p /tmp/.ivy2 \
-    && mkdir -p /tmp/sparkStaging \
-    && mkdir -p /tmp/hadoop-conf \
     && mkdir -p /tmp/spark \
-    && mkdir -p /tmp/jupyter-runtime \
-    && mkdir -p /tmp/jupyter-config \
-    && mkdir -p /tmp/jupyter-data \
-    && mkdir -p /tmp/.ipython \
     && chgrp -R 0 /home/jovyan /tmp \
     && chmod -R g+rwX /home/jovyan /tmp
 
-
-# -----------------------------
 # Switch to working directory
-# -----------------------------
 WORKDIR /home/jovyan
 
-# -----------------------------
 # Install Python requirements
-# -----------------------------
 COPY eda/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# -----------------------------
 # Copy project files
-# -----------------------------
 COPY . .
 
-# Fix permissions again (after COPY)
+# Fix permissions again after copy
 RUN chgrp -R 0 /home/jovyan /tmp \
     && chmod -R g+rwX /home/jovyan /tmp
 
-# -----------------------------
-# Switch to non-root (still gets random UID)
-# -----------------------------
+# Switch to non-root (random UID in OpenShift)
 USER jovyan
-
-# USER ${NB_UID}
-
-# -----------------------------
-# Environment variables
-# -----------------------------
 
 # Ports
 ENV JUPYTER_PORT=8888
@@ -63,37 +35,8 @@ ENV SPARK_UI_PORT=4040
 ENV KAFKA_BROKER=kafka:9092
 ENV KAFKA_TOPIC=customer
 
-# PySpark & Jupyter paths (force them to /tmp)
-ENV PYSPARK_PYTHON=python3
-ENV PYSPARK_DRIVER_PYTHON=jupyter
-
-# Ivy
-ENV IVY_HOME=/tmp/.ivy2
-
-# Jupyter
-# ENV JUPYTER_RUNTIME_DIR=/tmp/jupyter-runtime
-# ENV JUPYTER_CONFIG_DIR=/tmp/jupyter-config
-# ENV JUPYTER_DATA_DIR=/tmp/jupyter-data
-
-# ENV IPYTHONDIR=/tmp/.ipython
-
-
-# Spark
-ENV SPARK_LOCAL_DIRS=/tmp/spark
-ENV SPARK_SCALA_LOCAL_DIRS=/tmp/spark
-ENV SPARK_WORKER_DIR=/tmp/spark
-
-# ENV SPARK_HOME=/opt/conda/lib/python3.11/site-packages/pyspark
-# ENV SPARK_CONF_DIR=/tmp/hadoop-conf
-# ENV HADOOP_CONF_DIR=/tmp/hadoop-conf
-
-
-# -----------------------------
-# Ports
-# -----------------------------
+# Expose ports
 EXPOSE 8888 4040
 
-# -----------------------------
 # Start Jupyter
-# -----------------------------
 CMD ["jupyter","lab","--ip=0.0.0.0","--port=8888","--no-browser","--NotebookApp.token=","--NotebookApp.password="]

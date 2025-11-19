@@ -25,6 +25,11 @@ ENV JUPYTER_CONFIG_DIR=/tmp/jupyter-config
 ENV JUPYTER_DATA_DIR=/tmp/jupyter-data
 ENV IPYTHONDIR=/tmp/.ipython
 
+# Spark/Ivy directories (fix Java gateway issue)
+ENV IVY_HOME=/tmp/.ivy2
+ENV HADOOP_CONF_DIR=/tmp/hadoop-conf
+RUN mkdir -p /tmp/.ivy2 /tmp/hadoop-conf && chmod -R 777 /tmp/.ivy2 /tmp/hadoop-conf
+
 # -----------------------------
 # Working directory
 # -----------------------------

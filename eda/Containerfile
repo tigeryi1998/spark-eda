@@ -10,7 +10,10 @@ USER root
 
 # Create important dirs and give OpenShift-safe permissions
 RUN mkdir -p /home/jovyan/.ivy2 \
+    && mkdir -p /home/jovyan/.sparkStaging \
+    && mkdir -p /home/jovyan/.local/share/jupyter/runtime \
     && mkdir -p /tmp/.ivy2 \
+    && mkdir -p /tmp/sparkStaging \
     && mkdir -p /tmp/hadoop-conf \
     && mkdir -p /tmp/spark \
     && mkdir -p /tmp/jupyter-runtime \
@@ -19,6 +22,7 @@ RUN mkdir -p /home/jovyan/.ivy2 \
     && mkdir -p /tmp/.ipython \
     && chgrp -R 0 /home/jovyan /tmp \
     && chmod -R g+rwX /home/jovyan /tmp
+
 
 # -----------------------------
 # Switch to working directory
@@ -45,9 +49,13 @@ RUN chgrp -R 0 /home/jovyan /tmp \
 # -----------------------------
 USER jovyan
 
+# USER ${NB_UID}
+
 # -----------------------------
 # Environment variables
 # -----------------------------
+
+# Ports
 ENV JUPYTER_PORT=8888
 ENV SPARK_UI_PORT=4040
 
@@ -59,15 +67,26 @@ ENV KAFKA_TOPIC=customer
 ENV PYSPARK_PYTHON=python3
 ENV PYSPARK_DRIVER_PYTHON=jupyter
 
-ENV SPARK_LOCAL_DIRS=/tmp/spark
-ENV JUPYTER_RUNTIME_DIR=/tmp/jupyter-runtime
-ENV JUPYTER_CONFIG_DIR=/tmp/jupyter-config
-ENV JUPYTER_DATA_DIR=/tmp/jupyter-data
-ENV IPYTHONDIR=/tmp/.ipython
-
-# Spark/Ivy
+# Ivy
 ENV IVY_HOME=/tmp/.ivy2
-ENV HADOOP_CONF_DIR=/tmp/hadoop-conf
+
+# Jupyter
+# ENV JUPYTER_RUNTIME_DIR=/tmp/jupyter-runtime
+# ENV JUPYTER_CONFIG_DIR=/tmp/jupyter-config
+# ENV JUPYTER_DATA_DIR=/tmp/jupyter-data
+
+# ENV IPYTHONDIR=/tmp/.ipython
+
+
+# Spark
+ENV SPARK_LOCAL_DIRS=/tmp/spark
+ENV SPARK_SCALA_LOCAL_DIRS=/tmp/spark
+ENV SPARK_WORKER_DIR=/tmp/spark
+
+# ENV SPARK_HOME=/opt/conda/lib/python3.11/site-packages/pyspark
+# ENV SPARK_CONF_DIR=/tmp/hadoop-conf
+# ENV HADOOP_CONF_DIR=/tmp/hadoop-conf
+
 
 # -----------------------------
 # Ports

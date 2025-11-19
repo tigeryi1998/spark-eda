@@ -49,14 +49,20 @@ spec:
             # Writable dirs for Spark and Jupyter
             - name: SPARK_LOCAL_DIRS
               value: /tmp/spark
-            - name: JUPYTER_RUNTIME_DIR
-              value: /tmp/jupyter-runtime
-            - name: JUPYTER_CONFIG_DIR
-              value: /tmp/jupyter-config
-            - name: JUPYTER_DATA_DIR
-              value: /tmp/jupyter-data
-            - name: IPYTHONDIR
-              value: /tmp/.ipython
+            - name: SPARK_SCALA_LOCAL_DIRS
+              value: /tmp/spark
+            - name: SPARK_WORKER_DIR
+              value: /tmp/spark
+            - name: IVY_HOME
+              value: /tmp/.ivy2
+            # - name: JUPYTER_RUNTIME_DIR
+            #   value: /tmp/jupyter-runtime
+            # - name: JUPYTER_CONFIG_DIR
+            #   value: /tmp/jupyter-config
+            # - name: JUPYTER_DATA_DIR
+            #   value: /tmp/jupyter-data
+            # - name: IPYTHONDIR
+            #   value: /tmp/.ipython
 
           volumeMounts:
             - name: spark-temp

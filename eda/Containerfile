@@ -1,46 +1,55 @@
 # Containerfile
 
-# Base image (includes Python, Java, Spark, Jupyter)
-FROM jupyter/pyspark-notebook:spark-3.5.0 
-
-# ------------------------------------------------------
-# Run as root to install packages and fix permissions
-# ------------------------------------------------------
-USER root
+# Base image
+FROM jupyter/pyspark-notebook:spark-3.5.0
 
 # ------------------------------------------------------
 # Fix permissions for OpenShift
 # ------------------------------------------------------
+USER root
 
-# Make /home/jovyan fully writable for any UID (needed for PySpark/Java)
-RUN chmod -R 777 /home/jovyan
+# /tmp must be writable for JVM + Spark
 RUN chmod -R 777 /tmp
 
-# Switch back to default notebook user (OpenShift may override UID)
+# Ensure key runtime dirs exist and are writable
+RUN mkdir -p /home/jovyan/.ivy2 && chmod -R 777 /home/jovyan/.ivy2
+RUN mkdir -p /home/jovyan/.cache && chmod -R 777 /home/jovyan/.cache
+
+# Make project home writable (needed for Jupyter runtime)
+RUN chmod -R 777 /home/jovyan
+
+# Back to notebook user
 USER ${NB_UID}
 
 # ------------------------------------------------------
-
-
-# environment variables
+# Environment variables
+# ------------------------------------------------------
 ENV JUPYTER_PORT=8888
 ENV SPARK_UI_PORT=4040
 ENV KAFKA_BROKER=kafka:9092
 ENV KAFKA_TOPIC=customer
 
-# working directory
+# ------------------------------------------------------
+# Working directory
+# ------------------------------------------------------
 WORKDIR /home/jovyan
 
-# install python dependencies
+# ------------------------------------------------------
+# Install Python dependencies
+# ------------------------------------------------------
 COPY eda/requirements.txt eda/requirements.txt
 RUN pip install --no-cache-dir -r eda/requirements.txt
 
-# copy all application code
+# Copy rest of application code
 COPY . .
 
-# expose ports
+# ------------------------------------------------------
+# Expose ports
+# ------------------------------------------------------
 EXPOSE 8888
 EXPOSE 4040
 
-# command to run notebook
+# ------------------------------------------------------
+# Start JupyterLab
+# ------------------------------------------------------
 CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--NotebookApp.token=", "--NotebookApp.password="]

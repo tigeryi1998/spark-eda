@@ -1,55 +1,45 @@
-# Containerfile
-
-# Base image
 FROM jupyter/pyspark-notebook:spark-3.5.0
 
-# ------------------------------------------------------
-# Fix permissions for OpenShift
-# ------------------------------------------------------
 USER root
 
-# /tmp must be writable for JVM + Spark
-RUN chmod -R 777 /tmp
-
-# Ensure key runtime dirs exist and are writable
-RUN mkdir -p /home/jovyan/.ivy2 && chmod -R 777 /home/jovyan/.ivy2
-RUN mkdir -p /home/jovyan/.cache && chmod -R 777 /home/jovyan/.cache
-
-# Make project home writable (needed for Jupyter runtime)
-RUN chmod -R 777 /home/jovyan
-
-# Back to notebook user
-USER ${NB_UID}
-
-# ------------------------------------------------------
-# Environment variables
-# ------------------------------------------------------
+# environment vars
 ENV JUPYTER_PORT=8888
 ENV SPARK_UI_PORT=4040
 ENV KAFKA_BROKER=kafka:9092
 ENV KAFKA_TOPIC=customer
 
-# ------------------------------------------------------
-# Working directory
-# ------------------------------------------------------
 WORKDIR /home/jovyan
 
-# ------------------------------------------------------
-# Install Python dependencies
-# ------------------------------------------------------
+# Install Python deps first
 COPY eda/requirements.txt eda/requirements.txt
 RUN pip install --no-cache-dir -r eda/requirements.txt
 
-# Copy rest of application code
+# Copy all project files while still root
 COPY . .
 
-# ------------------------------------------------------
-# Expose ports
-# ------------------------------------------------------
-EXPOSE 8888
-EXPOSE 4040
+# ---------------------------------------------
+# 🔥 Fix permissions ONCE for OpenShift
+# ---------------------------------------------
+# Spark needs these directories writable at runtime:
+# - home directory (for .ivy2, caches, sparkStaging, etc.)
+# - /tmp (Spark + Jupyter write here)
+RUN mkdir -p \
+        /home/jovyan/.ivy2 \
+        /home/jovyan/.cache \
+        /home/jovyan/.python_history \
+        /home/jovyan/.jupyter \
+        /home/jovyan/.sparkStaging \
+        /home/jovyan/.local/share/jupyter/runtime
 
-# ------------------------------------------------------
-# Start JupyterLab
-# ------------------------------------------------------
+# Make EVERYTHING writable for random UID
+RUN chmod -R 777 /home/jovyan && \
+    chmod -R 777 /tmp
+
+# ---------------------------------------------
+# Switch to normal user only AFTER all setup
+# ---------------------------------------------
+USER ${NB_UID}
+
+EXPOSE 8888 4040
+
 CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--NotebookApp.token=", "--NotebookApp.password="]

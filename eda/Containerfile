@@ -3,6 +3,11 @@ FROM jupyter/pyspark-notebook:spark-3.5.0
 # Become root for setup
 USER root
 
+RUN chmod -R 777 /home/jovyan /tmp
+
+# Switch to non-root (random UID in OpenShift)
+USER jovyan
+
 # Create important writable dirs for OpenShift
 RUN mkdir -p /home/jovyan/.ivy2 \
     && mkdir -p /home/jovyan/.sparkStaging \
@@ -23,11 +28,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Fix permissions again after copy
-RUN chgrp -R 0 /home/jovyan /tmp \
-    && chmod -R g+rwX /home/jovyan /tmp
+# RUN chgrp -R 0 /home/jovyan /tmp && chmod -R g+rwX /home/jovyan /tmp
 
-# Switch to non-root (random UID in OpenShift)
-USER jovyan
 
 # Ports
 ENV JUPYTER_PORT=8888

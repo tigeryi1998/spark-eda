@@ -31,7 +31,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # After copy, fix permissions again (critical on OpenShift)
-RUN chmod -R 777 /home/jovyan
+RUN chmod -R 777 /home/jovyan /tmp
 
 # -----------------------------
 # Switch to non-root (works even though OpenShift overrides)

@@ -8,6 +8,18 @@ ENV SPARK_UI_PORT=4040
 ENV KAFKA_BROKER=kafka:9092
 ENV KAFKA_TOPIC=customer
 
+# Set PySpark / temp dirs explicitly for OpenShift
+ENV PYSPARK_PYTHON=python3
+ENV PYSPARK_DRIVER_PYTHON=jupyter
+ENV PYSPARK_DRIVER_PYTHON_OPTS="lab --ip=0.0.0.0 --no-browser --NotebookApp.token='' --NotebookApp.password=''"
+
+ENV SPARK_LOCAL_DIRS=/tmp/spark
+ENV JUPYTER_RUNTIME_DIR=/tmp/jupyter-runtime
+ENV JUPYTER_CONFIG_DIR=/tmp/jupyter-config
+ENV JUPYTER_DATA_DIR=/tmp/jupyter-data
+
+ENV IPYTHONDIR=/tmp/.ipython
+
 WORKDIR /home/jovyan
 
 # Install Python deps first
@@ -18,27 +30,21 @@ RUN pip install --no-cache-dir -r eda/requirements.txt
 COPY . .
 
 # ---------------------------------------------
-# 🔥 Fix permissions ONCE for OpenShift
+# Fix permissions ONCE for OpenShift
 # ---------------------------------------------
-# Spark needs these directories writable at runtime:
-# - home directory (for .ivy2, caches, sparkStaging, etc.)
-# - /tmp (Spark + Jupyter write here)
 RUN mkdir -p \
         /home/jovyan/.ivy2 \
         /home/jovyan/.cache \
         /home/jovyan/.python_history \
         /home/jovyan/.jupyter \
         /home/jovyan/.sparkStaging \
-        /home/jovyan/.local/share/jupyter/runtime
-
-# Make EVERYTHING writable for random UID
-RUN chmod -R 777 /home/jovyan && \
-    chmod -R 777 /tmp
+        /home/jovyan/.local/share/jupyter/runtime && \
+    chmod -R 777 /home/jovyan /tmp
 
 # ---------------------------------------------
-# Switch to normal user only AFTER all setup
+# Switch to notebook user
 # ---------------------------------------------
-USER ${NB_UID}
+USER jovyan
 
 EXPOSE 8888 4040
 

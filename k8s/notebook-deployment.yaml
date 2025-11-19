@@ -69,6 +69,14 @@ spec:
               mountPath: /tmp/spark
             - name: ivy-cache
               mountPath: /tmp/.ivy2
+            # - name: jupyter-runtime
+            #   mountPath: /tmp/jupyter-runtime
+            # - name: jupyter-config
+            #   mountPath: /tmp/jupyter-config
+            # - name: jupyter-data
+            #   mountPath: /tmp/jupyter-data
+            # - name: ipython-dir
+            #   mountPath: /tmp/.ipython
             
           resources:
             requests:
@@ -99,6 +107,14 @@ spec:
           emptyDir: {}
         - name: ivy-cache
           emptyDir: {}
+        # - name: jupyter-runtime
+        #   emptyDir: {}
+        # - name: jupyter-config
+        #   emptyDir: {}
+        # - name: jupyter-data
+        #   emptyDir: {}
+        # - name: ipython-dir
+        #   emptyDir: {}
 
       restartPolicy: Always
       terminationGracePeriodSeconds: 60

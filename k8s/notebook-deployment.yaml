@@ -45,8 +45,6 @@ spec:
               value: python3
             - name: PYSPARK_DRIVER_PYTHON
               value: jupyter
-            - name: PYSPARK_DRIVER_PYTHON_OPTS
-              value: "lab --ip=0.0.0.0 --no-browser --NotebookApp.token='' --NotebookApp.password=''"
 
             # Writable dirs for Spark and Jupyter
             - name: SPARK_LOCAL_DIRS

@@ -1,51 +1,63 @@
+# -----------------------------
+# Base image
+# -----------------------------
 FROM jupyter/pyspark-notebook:spark-3.5.0
 
+# -----------------------------
+# Run as root for installations & permissions
+# -----------------------------
 USER root
 
-# environment vars
+# -----------------------------
+# Environment variables
+# -----------------------------
 ENV JUPYTER_PORT=8888
 ENV SPARK_UI_PORT=4040
 ENV KAFKA_BROKER=kafka:9092
 ENV KAFKA_TOPIC=customer
 
-# Set PySpark / temp dirs explicitly for OpenShift
+# PySpark / Jupyter temp directories
 ENV PYSPARK_PYTHON=python3
 ENV PYSPARK_DRIVER_PYTHON=jupyter
-ENV PYSPARK_DRIVER_PYTHON_OPTS="lab --ip=0.0.0.0 --no-browser --NotebookApp.token='' --NotebookApp.password=''"
-
 ENV SPARK_LOCAL_DIRS=/tmp/spark
 ENV JUPYTER_RUNTIME_DIR=/tmp/jupyter-runtime
 ENV JUPYTER_CONFIG_DIR=/tmp/jupyter-config
 ENV JUPYTER_DATA_DIR=/tmp/jupyter-data
-
 ENV IPYTHONDIR=/tmp/.ipython
 
+# -----------------------------
+# Working directory
+# -----------------------------
 WORKDIR /home/jovyan
 
-# Install Python deps first
-COPY eda/requirements.txt eda/requirements.txt
-RUN pip install --no-cache-dir -r eda/requirements.txt
+# -----------------------------
+# Install Python dependencies
+# -----------------------------
+COPY eda/requirements.txt ./requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy all project files while still root
+# -----------------------------
+# Copy project files
+# -----------------------------
 COPY . .
 
-# ---------------------------------------------
-# Fix permissions ONCE for OpenShift
-# ---------------------------------------------
-RUN mkdir -p \
-        /home/jovyan/.ivy2 \
-        /home/jovyan/.cache \
-        /home/jovyan/.python_history \
-        /home/jovyan/.jupyter \
-        /home/jovyan/.sparkStaging \
-        /home/jovyan/.local/share/jupyter/runtime && \
-    chmod -R 777 /home/jovyan /tmp
+# -----------------------------
+# OpenShift-friendly permissions
+# -----------------------------
+# Make /home/jovyan and /tmp writable by any UID
+RUN chmod -R 777 /home/jovyan /tmp
 
-# ---------------------------------------------
+# -----------------------------
 # Switch to notebook user
-# ---------------------------------------------
+# -----------------------------
 USER jovyan
 
+# -----------------------------
+# Expose ports
+# -----------------------------
 EXPOSE 8888 4040
 
+# -----------------------------
+# Start Jupyter Lab
+# -----------------------------
 CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--NotebookApp.token=", "--NotebookApp.password="]

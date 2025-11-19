@@ -50,22 +50,22 @@ spec:
               cpu: "1000m"
               memory: "2Gi"
 
-          # readinessProbe:
-          #   httpGet:
-          #     path: "/"
-          #     port: 8888
-          #   initialDelaySeconds: 15
-          #   periodSeconds: 5
-          #   timeoutSeconds: 2
+          readinessProbe:
+            httpGet:
+              path: "/"
+              port: 8888
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            timeoutSeconds: 2
 
-          # livenessProbe:
-          #   httpGet:
-          #     path: "/"
-          #     port: 8888
-          #   initialDelaySeconds: 30
-          #   periodSeconds: 10
-          #   timeoutSeconds: 2
+          livenessProbe:
+            httpGet:
+              path: "/"
+              port: 8888
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 2
 
       restartPolicy: Always
-      terminationGracePeriodSeconds: 30
+      terminationGracePeriodSeconds: 60
 

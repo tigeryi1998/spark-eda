@@ -1,45 +1,37 @@
 FROM jupyter/pyspark-notebook:spark-3.5.0
 
-# Become root for setup
+# 1. Root only to create & chmod dirs that need to be writable
 USER root
 
-RUN chmod -R 777 /home/jovyan /tmp
-
-# Switch to non-root (random UID in OpenShift)
-USER jovyan
-
-# Create important writable dirs for OpenShift
 RUN mkdir -p /home/jovyan/.ivy2 \
-    && mkdir -p /home/jovyan/.sparkStaging \
-    && mkdir -p /home/jovyan/.local/share/jupyter/runtime \
-    && mkdir -p /tmp/.ivy2 \
-    && mkdir -p /tmp/spark \
-    && chgrp -R 0 /home/jovyan /tmp \
-    && chmod -R g+rwX /home/jovyan /tmp
+    /home/jovyan/.sparkStaging \
+    /home/jovyan/.local/share/jupyter/runtime \
+    /tmp/.ivy2 \
+    /tmp/spark \
+    && chmod -R 777 /home/jovyan/.ivy2 \
+    && chmod -R 777 /home/jovyan/.sparkStaging \
+    && chmod -R 777 /home/jovyan/.local/share/jupyter/runtime \
+    && chmod -R 777 /tmp/.ivy2 \
+    && chmod -R 777 /tmp/spark
 
-# Switch to working directory
+# 2. Switch to jovyan for everything else
+USER jovyan
 WORKDIR /home/jovyan
 
-# Install Python requirements
+# 3. Install Python packages as jovyan (files owned by jovyan)
 COPY eda/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy project files
+# 4. Copy project files
 COPY . .
 
-# Fix permissions again after copy
-# RUN chgrp -R 0 /home/jovyan /tmp && chmod -R g+rwX /home/jovyan /tmp
-
-# Ports
+# 5. Ports and env
 ENV JUPYTER_PORT=8888
 ENV SPARK_UI_PORT=4040
-
-# Kafka
 ENV KAFKA_BROKER=kafka:9092
 ENV KAFKA_TOPIC=customer
 
-# Expose ports
 EXPOSE 8888 4040
 
-# Start Jupyter
+# 6. Start Jupyter
 CMD ["jupyter","lab","--ip=0.0.0.0","--port=8888","--no-browser","--NotebookApp.token=","--NotebookApp.password="]

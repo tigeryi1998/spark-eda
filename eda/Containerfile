@@ -4,51 +4,23 @@
 FROM jupyter/pyspark-notebook:spark-3.5.0
 
 # -----------------------------
-# Run as root for installations & permissions
+# Become root for setup
 # -----------------------------
 USER root
 
-# -----------------------------
-# OpenShift-friendly permissions
-# -----------------------------
-# Make /home/jovyan and /tmp writable by any UID
-RUN chmod -R 777 /home/jovyan /tmp
+# Ensure required directories exist with OpenShift-safe permissions
+RUN mkdir -p /home/jovyan/.ivy2 \
+    && mkdir -p /tmp/.ivy2 \
+    && mkdir -p /tmp/hadoop-conf \
+    && chmod -R 777 /home/jovyan /tmp
 
 # -----------------------------
-# Switch to notebook user
-# -----------------------------
-USER jovyan
-
-
-# -----------------------------
-# Environment variables
-# -----------------------------
-ENV JUPYTER_PORT=8888
-ENV SPARK_UI_PORT=4040
-ENV KAFKA_BROKER=kafka:9092
-ENV KAFKA_TOPIC=customer
-
-# PySpark / Jupyter temp directories
-ENV PYSPARK_PYTHON=python3
-ENV PYSPARK_DRIVER_PYTHON=jupyter
-ENV SPARK_LOCAL_DIRS=/tmp/spark
-ENV JUPYTER_RUNTIME_DIR=/tmp/jupyter-runtime
-ENV JUPYTER_CONFIG_DIR=/tmp/jupyter-config
-ENV JUPYTER_DATA_DIR=/tmp/jupyter-data
-ENV IPYTHONDIR=/tmp/.ipython
-
-# Spark/Ivy directories (fix Java gateway issue)
-ENV IVY_HOME=/tmp/.ivy2
-ENV HADOOP_CONF_DIR=/tmp/hadoop-conf
-RUN mkdir -p /tmp/.ivy2 /tmp/hadoop-conf && chmod -R 777 /tmp/.ivy2 /tmp/hadoop-conf
-
-# -----------------------------
-# Working directory
+# Switch to working directory
 # -----------------------------
 WORKDIR /home/jovyan
 
 # -----------------------------
-# Install Python dependencies
+# Install Python requirements
 # -----------------------------
 COPY eda/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
@@ -58,12 +30,40 @@ RUN pip install --no-cache-dir -r requirements.txt
 # -----------------------------
 COPY . .
 
+# After copy, fix permissions again (critical on OpenShift)
+RUN chmod -R 777 /home/jovyan
+
 # -----------------------------
-# Expose ports
+# Switch to non-root (works even though OpenShift overrides)
+# -----------------------------
+USER jovyan
+
+# -----------------------------
+# Environment variables
+# -----------------------------
+ENV JUPYTER_PORT=8888
+ENV SPARK_UI_PORT=4040
+ENV KAFKA_BROKER=kafka:9092
+ENV KAFKA_TOPIC=customer
+
+ENV PYSPARK_PYTHON=python3
+ENV PYSPARK_DRIVER_PYTHON=jupyter
+ENV SPARK_LOCAL_DIRS=/tmp/spark
+ENV JUPYTER_RUNTIME_DIR=/tmp/jupyter-runtime
+ENV JUPYTER_CONFIG_DIR=/tmp/jupyter-config
+ENV JUPYTER_DATA_DIR=/tmp/jupyter-data
+ENV IPYTHONDIR=/tmp/.ipython
+
+# Spark/Ivy
+ENV IVY_HOME=/tmp/.ivy2
+ENV HADOOP_CONF_DIR=/tmp/hadoop-conf
+
+# -----------------------------
+# Ports
 # -----------------------------
 EXPOSE 8888 4040
 
 # -----------------------------
-# Start Jupyter Lab
+# Start Jupyter
 # -----------------------------
-CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--NotebookApp.token=", "--NotebookApp.password="]
+CMD ["jupyter","lab","--ip=0.0.0.0","--port=8888","--no-browser","--NotebookApp.token=","--NotebookApp.password="]

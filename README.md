@@ -11,6 +11,8 @@ This project demonstrates a complete streaming workflow:
 
 [Github URL](https://github.com/tigeryi1998/spark-eda)
 
+📸 See [`Topology screenshot`](./topology.png) for reference.
+
 ## 📁 Project Structure
 
 ``` text

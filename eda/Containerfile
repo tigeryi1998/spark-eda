@@ -1,31 +1,40 @@
 FROM jupyter/pyspark-notebook:spark-3.5.0
 
-# 1. Root only to create & chmod dirs that need to be writable
+# Root only to create & chmod dirs that need to be writable
 USER root
+WORKDIR /home/jovyan
 
-RUN mkdir -p /home/jovyan/.ivy2 \
-    /home/jovyan/.sparkStaging \
-    /home/jovyan/.local/share/jupyter/runtime \
-    /tmp/.ivy2 \
-    /tmp/spark \
-    && chmod -R 777 /home/jovyan/.ivy2 \
-    && chmod -R 777 /home/jovyan/.sparkStaging \
-    && chmod -R 777 /home/jovyan/.local/share/jupyter/runtime \
-    && chmod -R 777 /tmp/.ivy2 \
-    && chmod -R 777 /tmp/spark
+# RUN mkdir -p /home/jovyan/.ivy2 \
+#     /home/jovyan/.sparkStaging \
+#     /home/jovyan/.local/share/jupyter/runtime \
+#     /tmp/.ivy2 \
+#     /tmp/spark \
+#     && chmod -R 777 /home/jovyan/.ivy2 \
+#     && chmod -R 777 /home/jovyan/.sparkStaging \
+#     && chmod -R 777 /home/jovyan/.local/share/jupyter/runtime \
+#     && chmod -R 777 /tmp/.ivy2 \
+#     && chmod -R 777 /tmp/spark
 
-# 2. Switch to jovyan for everything else
+# Install Python packages as jovyan (files owned by jovyan)
+COPY eda/requirements.txt eda/requirements.txt
+RUN pip install --no-cache-dir -r eda/requirements.txt
+
+# Copy project files
+COPY  eda/ eda/
+
+RUN chown -R jovyan:users /home/jovyan/eda/
+
+# Change the group ownership of the home directory to GID 0 (root group)
+# and add group read write execute permissions. 
+# This allows OpenShift's random UID
+# (which is in GID 0) to write to the home directory.
+RUN chgrp -R 0 /home/jovyan && chmod -R g+rwX /home/jovyan
+
+# Switch to jovyan for everything else
 USER jovyan
 WORKDIR /home/jovyan
 
-# 3. Install Python packages as jovyan (files owned by jovyan)
-COPY eda/requirements.txt ./requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
-
-# 4. Copy project files
-COPY . .
-
-# 5. Ports and env
+# Ports and env
 ENV JUPYTER_PORT=8888
 ENV SPARK_UI_PORT=4040
 ENV KAFKA_BROKER=kafka:9092

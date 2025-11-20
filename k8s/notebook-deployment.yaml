@@ -19,13 +19,13 @@ spec:
           image: image-registry.openshift-image-registry.svc:5000/ds551-2025fall-cb9303/spark-eda-notebook:latest
           imagePullPolicy: Always
 
-          command: ["jupyter", "lab"]
-          args:
-            - "--ip=0.0.0.0"
-            - "--port=8888"
-            - "--no-browser"
-            - "--NotebookApp.token="
-            - "--NotebookApp.password="
+          # command: ["jupyter", "lab"]
+          # args:
+          #   - "--ip=0.0.0.0"
+          #   - "--port=8888"
+          #   - "--no-browser"
+          #   - "--NotebookApp.token="
+          #   - "--NotebookApp.password="
 
           ports:
             - name: jupyter
@@ -47,14 +47,14 @@ spec:
               value: jupyter
 
             # Writable dirs for Spark and Jupyter
-            - name: SPARK_LOCAL_DIRS
-              value: /tmp/spark
-            - name: SPARK_SCALA_LOCAL_DIRS
-              value: /tmp/spark
-            - name: SPARK_WORKER_DIR
-              value: /tmp/spark
-            - name: IVY_HOME
-              value: /tmp/.ivy2
+            # - name: SPARK_LOCAL_DIRS
+            #   value: /tmp/spark
+            # - name: SPARK_SCALA_LOCAL_DIRS
+            #   value: /tmp/spark
+            # - name: SPARK_WORKER_DIR
+            #   value: /tmp/spark
+            # - name: IVY_HOME
+            #   value: /tmp/.ivy2
             # - name: JUPYTER_RUNTIME_DIR
             #   value: /tmp/jupyter-runtime
             # - name: JUPYTER_CONFIG_DIR
@@ -64,11 +64,11 @@ spec:
             # - name: IPYTHONDIR
             #   value: /tmp/.ipython
 
-          volumeMounts:
-            - name: spark-temp
-              mountPath: /tmp/spark
-            - name: ivy-cache
-              mountPath: /tmp/.ivy2
+          # volumeMounts:
+            # - name: spark-temp
+            #   mountPath: /tmp/spark
+            # - name: ivy-cache
+            #   mountPath: /tmp/.ivy2
             # - name: jupyter-runtime
             #   mountPath: /tmp/jupyter-runtime
             # - name: jupyter-config
@@ -102,11 +102,11 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 2
 
-      volumes:
-        - name: spark-temp
-          emptyDir: {}
-        - name: ivy-cache
-          emptyDir: {}
+      # volumes:
+        # - name: spark-temp
+        #   emptyDir: {}
+        # - name: ivy-cache
+        #   emptyDir: {}
         # - name: jupyter-runtime
         #   emptyDir: {}
         # - name: jupyter-config
@@ -117,4 +117,4 @@ spec:
         #   emptyDir: {}
 
       restartPolicy: Always
-      terminationGracePeriodSeconds: 60
+      # terminationGracePeriodSeconds: 60
